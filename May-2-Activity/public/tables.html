@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Reserve.com - Tables</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <!-- Font Awesome CSS Icons (For cool glyphicons) -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.13.0/css/all.css" />
+</head>
+
+<!-- List reservations from /api/tables and /api/waitlist -->
+
+<body>
+    <div class="container">
+        <div class="jumbotron">
+            <h1 class="display-4"><i class="fas fa-fire"></i> Reserve.com</h1>
+            <p class="lead">You can check all of the reservations that have been made here.</p>
+            <hr class="my-4">
+            <a class="btn btn-primary btn-lg" href="/reserve" role="button"><i class="fas fa-credit-card"></i> Make Reservation</a>
+            <a class="btn btn-secondary btn-lg" href="/" role="button"><i class="fas fa-home"></i> Home</a>
+            <a class="btn btn-danger btn-lg" role="button" id="clear"><i class="fas fa-trash"></i> Clear All Reservations</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <h3>Confirmed Reservations</h3>
+        <table class="table" id="tables">
+            <tbody></tbody>
+        </table>
+        <h3>Waitlist</h3>
+        <table class="table" id="waitlist">
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.0.min.js" integrity="sha256-xNzN2a4ltkB44Mc/Jz3pT4iU1cmeR0FkXs4pru/JxaQ=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+    <script>
+        $.ajax({
+                url: '/api/tables'
+            })
+            .then((response) => {
+                for (i = 0; i < response.length; i++) {
+                    $("<tr>")
+                        .append(`<th scope="row">${i+1}</th>`)
+                        .append(`<td>${response[i].name}</td>`)
+                        .append(`<td><a class="btn btn-info" data-id="${response[i].uniqueID}">Clear</a></td>`)
+                        .appendTo('#tables tbody');
+                }
+            });
+        $.ajax({
+                url: '/api/waitlist'
+            })
+            .then((response) => {
+                for (i = 0; i < response.length; i++) {
+                    $("<tr>")
+                        .append(`<th scope="row">${i+1}</th>`)
+                        .append(`<td>${response[i].name}</td>`)
+                        .appendTo('#waitlist tbody');
+                }
+            })
+
+        $(document).on('click', "#tables .btn", (e) => {
+            e.preventDefault();
+
+            const uniqueID = $(e.currentTarget).data("id");
+            $.ajax({
+                    url: `/api/tables/${uniqueID}`,
+                    method: 'DELETE'
+                })
+                .then(() => {
+                    location.reload();
+                });
+        })
+
+
+        $("#clear").on('click', (e) => {
+            e.preventDefault();
+            $.ajax({
+                    url: "/api/clear"
+                })
+                .then(() => {
+                    location.reload();
+                });
+        })
+    </script>
+</body>
+<!-- 
+<table class="table">
+  <tbody>
+    <tr>
+      <th scope="row">1</th>
+      <td>Mark</td>
+      <td>Otto</td>
+      <td>@mdo</td>
+    </tr>
+    <tr>
+      <th scope="row">2</th>
+      <td>Jacob</td>
+      <td>Thornton</td>
+      <td>@fat</td>
+    </tr>
+    <tr>
+      <th scope="row">3</th>
+      <td>Larry</td>
+      <td>the Bird</td>
+      <td>@twitter</td>
+    </tr>
+  </tbody>
+</table>
+-->
+
+</html>
